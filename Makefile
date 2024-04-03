@@ -1,5 +1,6 @@
 CC = g++
 CFLAGS = -std=c++11 -Wall
+LDFLAGS = -lpcap
 
 SRC_DIR = src
 BIN_DIR = bin

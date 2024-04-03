@@ -10,8 +10,8 @@ public:
     std::string interface;
     bool tcp = false;
     bool udp = false;
-    int port_destination = -1;
-    int port_source = -1;
+    int port_destination = 23;
+    int port_source = 23;
     bool icmp4 = false;
     bool icmp6 = false;
     bool arp = false;

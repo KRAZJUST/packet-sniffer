@@ -8,3 +8,4 @@ ipk24chat-client
 /Makefile.in
 
 .out
+.vscode
