@@ -24,6 +24,7 @@ public:
     void parse_cmd_arguments(int argc, char* argv[]);
     void print_help();
     void print_arguments();
+    void print_interfaces();
 };
 
 #endif // ARGUMENTS_H

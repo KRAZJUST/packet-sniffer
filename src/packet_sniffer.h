@@ -6,6 +6,8 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <stdio.h>
+#include <sstream>
+#include <vector>
 
 class PacketSniffer {
 public:
@@ -13,6 +15,7 @@ public:
     PacketSniffer(const Arguments& args);
     static void packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data);
     void start_sniffing();
+    std::string set_filter();
 
 private:
 

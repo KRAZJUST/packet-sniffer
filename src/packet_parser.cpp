@@ -65,11 +65,14 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
     // Print protocol type
     std::cout << "protocol: " << protocol_to_string(ip_header->ip_p) << std::endl;
 
-    // Print IP packet length
-    // Print time to live (TTL)
-    // Print identification
-    // Print flags and fragment offset
-    // Print header checksum
+    // Print total length of the IPv4 packet
+    std::cout << "total length: " << ntohs(ip_header->ip_len) << " bytes" << std::endl;
+
+    // Print identification number
+    std::cout << "identification: " << ntohs(ip_header->ip_id) << std::endl;
+
+    // Print Time To Live (TTL) value
+    std::cout << "TTL: " << static_cast<int>(ip_header->ip_ttl) << std::endl;
 }
 
 void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {

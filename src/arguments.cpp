@@ -8,7 +8,7 @@ Arguments::Arguments(int argc, char* argv[]) {
 void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if (arg == "-i" && i + 1 < argc) {
+        if ((arg == "-i" || arg == "--interface") && i + 1 < argc) {
             interface = argv[++i];
         } else if ((arg == "-t" || arg == "--tcp")) {
             tcp = true;
@@ -36,6 +36,12 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
             print_help();
             exit(0);
         }
+    }
+
+    if(interface.empty()){
+        print_interfaces();
+        std::cout << "For more information run " << argv[0] << " -h" << std::endl;
+        exit(1);
     }
 
     print_arguments();
@@ -74,4 +80,9 @@ void Arguments::print_arguments(){
     std::cout << "igmp: " << igmp << std::endl;
     std::cout << "mld: " << mld << std::endl;
     std::cout << "packets_num: " << packets_num << std::endl;
+}
+
+void Arguments::print_interfaces(){
+    std::cout << "No interface specified, use one of the following active interfaces:" << std::endl;
+    system("ip addr | grep 'state UP' -A2 | grep '^[0-9]' | awk '{print $2}' | cut -f1 -d'/'");
 }
