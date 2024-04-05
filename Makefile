@@ -10,7 +10,7 @@ $(shell mkdir -p $(BIN_DIR))
 
 SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS=$(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.o,$(SOURCES))
-EXECUTABLE=ipk24-sniffer
+EXECUTABLE=ipk-sniffer
 
 .PHONY: all clean
 

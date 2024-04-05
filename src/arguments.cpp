@@ -41,7 +41,7 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
     if(interface.empty()){
         print_interfaces();
         std::cout << "For more information run " << argv[0] << " -h" << std::endl;
-        exit(1);
+        exit(0);
     }
 
     print_arguments();

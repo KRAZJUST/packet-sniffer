@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <sstream>
 #include <vector>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 class PacketSniffer {
 public:
@@ -16,6 +20,7 @@ public:
     static void packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data);
     void start_sniffing();
     std::string set_filter();
+    std::string get_interface_ip(const std::string& interface);
 
 private:
 
