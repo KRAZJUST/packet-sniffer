@@ -43,7 +43,7 @@ const char* PacketParser::protocol_to_string(uint8_t protocol) {
         case IPPROTO_UDP:
             return "UDP";
         case IPPROTO_ICMP:
-            return "ICMP";
+            return "ICMPv4";
         default:
             return "Unknown";
     }
@@ -95,8 +95,12 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
     char dest_ip[INET6_ADDRSTRLEN];
     inet_ntop(AF_INET6, &(ipv6_header->ip6_src), source_ip, INET6_ADDRSTRLEN);
     inet_ntop(AF_INET6, &(ipv6_header->ip6_dst), dest_ip, INET6_ADDRSTRLEN);
-    std::cout << "src IP: " << source_ip << std::endl;
-    std::cout << "dst IP: " << dest_ip << std::endl;
+
+    // Convert IPv6 addresses to preferred form
+    std::string formatted_source_ip = format_ipv6_address(source_ip);
+    std::string formatted_dest_ip = format_ipv6_address(dest_ip);
+    std::cout << "src IP: " << formatted_source_ip << std::endl;
+    std::cout << "dst IP: " << formatted_dest_ip << std::endl;
 
     // Print protocol type
     std::cout << "protocol: " << protocol_to_string(ipv6_header->ip6_nxt) << std::endl;
@@ -109,10 +113,6 @@ void PacketParser::print_arp_info(const u_char* arp_packet_data) {
     // Extract ARP header
     const struct ether_arp* arp_header = reinterpret_cast<const struct ether_arp*>(arp_packet_data);
 
-    // Print source and destination MAC addresses
-    std::cout << "src MAC: " << ether_ntoa((const struct ether_addr*)&arp_header->arp_sha) << std::endl;
-    std::cout << "dst MAC: " << ether_ntoa((const struct ether_addr*)&arp_header->arp_tha) << std::endl;
-
     // Print source and destination IP addresses
     char source_ip[INET_ADDRSTRLEN];
     char dest_ip[INET_ADDRSTRLEN];
@@ -124,7 +124,11 @@ void PacketParser::print_arp_info(const u_char* arp_packet_data) {
     std::cout << std::endl;
 }
 
-
+/**
+ * @brief Function to print package's timestamp in
+ *
+ * @param pkthdr
+ */
 void PacketParser::print_timestamp(const struct pcap_pkthdr* pkthdr){
     
     // Extract timestamp
@@ -176,5 +180,61 @@ void PacketParser::print_byte_offset(const u_char* data, int length) {
             std::cout << std::endl;
         }
     }
+}
+
+/**
+ * @brief Function to format IPv6 address according to RFC5952 specifications
+ *
+ * @param ipv6_address
+ * @return
+ */
+std::string PacketParser::format_ipv6_address(const std::string& ipv6_address) {
+    // Split the IPv6 address into its components
+    std::istringstream iss(ipv6_address);
+    std::string component;
+    std::vector<std::string> components; // Declare components vector
+    while (std::getline(iss, component, ':')) {
+        components.push_back(component);
+    }
+
+    // Count the consecutive zeros in the address
+    int consecutive_zeros = 0;
+    int max_consecutive_zeros = 0;
+    bool counting_zeros = false;
+    for (const auto& comp : components) {
+        if (comp.empty()) {
+            if (counting_zeros) {
+                consecutive_zeros++;
+            } else {
+                counting_zeros = true;
+                consecutive_zeros = 1;
+            }
+        } else {
+            counting_zeros = false;
+            if (consecutive_zeros > max_consecutive_zeros) {
+                max_consecutive_zeros = consecutive_zeros;
+            }
+        }
+    }
+
+    // Replace the longest consecutive zeros with "::"
+    std::ostringstream formatted_address;
+    for (size_t i = 0; i < components.size(); ++i) {
+        if (components[i].empty()) {
+            if (consecutive_zeros == max_consecutive_zeros) {
+                if (i == 0 || i == components.size() - 1) {
+                    formatted_address << "::";
+                }
+                consecutive_zeros--;
+            }
+        } else {
+            formatted_address << components[i];
+            if (i != components.size() - 1) {
+                formatted_address << ":";
+            }
+        }
+    }
+
+    return formatted_address.str();
 }
 

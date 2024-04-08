@@ -3,6 +3,7 @@
 
 #include <pcap.h>
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <netinet/in.h>
 #include <netinet/ether.h>
@@ -12,6 +13,7 @@
 #include <netinet/ip6.h>
 #include <netinet/udp.h>
 #include <netinet/tcp.h>
+#include <vector>
 
 class PacketParser {
 public:
@@ -25,6 +27,7 @@ public:
     void print_timestamp(const struct pcap_pkthdr* pkthdr);
     const char* protocol_to_string(uint8_t protocol);
     void print_byte_offset(const u_char* data, int length);
+    std::string format_ipv6_address(const std::string& ipv6_address);
 
 };
 

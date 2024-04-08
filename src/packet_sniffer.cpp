@@ -5,20 +5,7 @@ PacketSniffer::PacketSniffer(const Arguments& args) : arguments(args) {}
 
 void PacketSniffer::start_sniffing() {
     char errbuf[PCAP_ERRBUF_SIZE];
-    const char* dev = nullptr;
 
-    // Check if the interface was specified
-    if (!arguments.interface.empty()){
-        dev = arguments.interface.c_str();
-    }
-    // If not interface was specified, try to find default device
-    else {
-        if ((dev = pcap_lookupdev(errbuf)) == nullptr){
-            std::cerr << "ERR: Could not find default device." << errbuf << std::endl;
-            return;
-        }
-    }
-    
     // Open sniffing session
     pcap_t* pcap_handle = pcap_open_live(arguments.interface.c_str(), BUFSIZ, 1, 1000, errbuf);
     if (pcap_handle == nullptr) {
@@ -105,7 +92,7 @@ std::string PacketSniffer::set_filter() {
         }
         if (arguments.ndp) {
             if (added) protocol_filter << " or ";
-            protocol_filter << "icmp6-ineighbordiscoveryadvert";
+            protocol_filter << "ndp";
             added = true;
         }
         if (arguments.igmp) {
@@ -123,14 +110,19 @@ std::string PacketSniffer::set_filter() {
     }
 
     // Add port filters if specified
-    if (arguments.port_destination != 23 || (arguments.port_source != 0 && arguments.port_source != arguments.port_destination)) {
+    if (arguments.port_destination != -1 || (arguments.port_source != -1 && arguments.port_source != arguments.port_destination)) {
         std::ostringstream port_filter;
-        port_filter << "port " << arguments.port_destination;
-        if (arguments.port_source != 0 && arguments.port_source != arguments.port_destination) {
+        if (arguments.port_destination != -1) {
+            port_filter << "port " << arguments.port_destination;
+        } else {
+            port_filter << "portrange 1-65535"; // Sniff on any port
+        }
+        if (arguments.port_source != -1 && arguments.port_source != arguments.port_destination) {
             port_filter << " or port " << arguments.port_source;
         }
         filter_conditions.push_back(port_filter.str());
     }
+
 
     // Concatenate filter conditions with "and"
     for (size_t i = 0; i < filter_conditions.size(); ++i) {
