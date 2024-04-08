@@ -25,7 +25,7 @@ public:
     void print_ipv6_info(const u_char* ip_packet_data);
     void print_arp_info(const u_char* ip_packet_data);
     void print_timestamp(const struct pcap_pkthdr* pkthdr);
-    const char* protocol_to_string(uint8_t protocol);
+    const char* protocol_to_string(uint8_t protocol, int ipv_num);
     void print_byte_offset(const u_char* data, int length);
     std::string format_ipv6_address(const std::string& ipv6_address);
 

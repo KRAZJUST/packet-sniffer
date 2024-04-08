@@ -31,7 +31,10 @@ void PacketSniffer::start_sniffing() {
     }
 
     // Catch packets_num number of packets
-    pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr);
+    if (pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr) < 0) {
+        std::cerr << "ERR: pcap_loop failed." << std::endl;
+    }
+    std::cout << "captured package" << std::endl;
     pcap_close(pcap_handle);
 }
 
@@ -49,17 +52,6 @@ std::string PacketSniffer::set_filter() {
 
     // Vector to store filter conditions
     std::vector<std::string> filter_conditions;
-
-    // Add interface filter if specified
-    if (!arguments.interface.empty()) {
-        std::string interface_ip = get_interface_ip(arguments.interface);
-        if (!interface_ip.empty()) {
-            filter_conditions.push_back("src or dst host " + interface_ip);
-        } else {
-            std::cerr << "ERR: Interface IP not found for " << arguments.interface << std::endl;
-            exit(1);
-        }
-    }
 
     // Add protocol filters
     if (arguments.tcp || arguments.udp || arguments.icmp4 || arguments.icmp6 || arguments.arp || arguments.ndp || arguments.igmp || arguments.mld) {
@@ -110,18 +102,31 @@ std::string PacketSniffer::set_filter() {
     }
 
     // Add port filters if specified
-    if (arguments.port_destination != -1 || (arguments.port_source != -1 && arguments.port_source != arguments.port_destination)) {
+    if (arguments.port_destination != -1 || arguments.port_source != -1) {
         std::ostringstream port_filter;
+        bool dst_port_added = false;
+
         if (arguments.port_destination != -1) {
-            port_filter << "port " << arguments.port_destination;
-        } else {
-            port_filter << "portrange 1-65535"; // Sniff on any port
+            port_filter << "(dst port " << arguments.port_destination;
+            dst_port_added = true;
+            if(arguments.port_source != -1){
+                port_filter << "or ";
+            }
         }
-        if (arguments.port_source != -1 && arguments.port_source != arguments.port_destination) {
-            port_filter << " or port " << arguments.port_source;
+        if (arguments.port_source != -1) {
+            if(dst_port_added){
+                port_filter << "src port " << arguments.port_source;
+            }
+            else {
+                port_filter << "(src port " << arguments.port_source;
+            }
         }
+
+        port_filter << ")";
         filter_conditions.push_back(port_filter.str());
     }
+
+
 
 
     // Concatenate filter conditions with "and"

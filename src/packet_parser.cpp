@@ -36,14 +36,21 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
     }
 }
 
-const char* PacketParser::protocol_to_string(uint8_t protocol) {
+const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
     switch(protocol) {
         case IPPROTO_TCP:
             return "TCP";
         case IPPROTO_UDP:
             return "UDP";
         case IPPROTO_ICMP:
-            return "ICMPv4";
+            if(ipv_num == 4) {
+                return "ICMPv4";
+            }
+            else if(ipv_num == 6){
+                return "ICMPv6";
+            }
+        case IPPROTO_IGMP:
+            return "IGMP";
         default:
             return "Unknown";
     }
@@ -63,18 +70,19 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
     std::cout << "dst IP: " << dest_ip << std::endl;
 
     // Print protocol type
-    std::string protocol = protocol_to_string(ip_header->ip_p);
+    std::string protocol = protocol_to_string(ip_header->ip_p, 4);
     std::cout << "protocol: " << protocol << std::endl;
 
     // Check if the protocol is UDP or TCP and print dst and src port based on it
     if (protocol == "UDP") {
         const struct udphdr* udp_header = reinterpret_cast<const struct udphdr*>(ip_packet_data + sizeof(struct ip));
-        std::cout << "src port: " << ntohs(udp_header->uh_sport) << std::endl;
-        std::cout << "dst port: " << ntohs(udp_header->uh_dport) << std::endl;
+        std::cout << "src port: " << std::dec << ntohs(udp_header->uh_sport) << std::endl;
+        std::cout << "dst port: " << std::dec << ntohs(udp_header->uh_dport) << std::endl;
     } else if (protocol == "TCP") {
         const struct tcphdr* tcp_header = reinterpret_cast<const struct tcphdr*>(ip_packet_data + sizeof(struct ip));
-        std::cout << "src port: " << ntohs(tcp_header->th_sport) << std::endl;
-        std::cout << "dst port: " << ntohs(tcp_header->th_dport) << std::endl;
+        std::cout << "src port: " << std::dec << ntohs(tcp_header->th_sport) << std::endl;
+        std::cout << "dst port: " << std::dec << ntohs(tcp_header->th_dport) << std::endl;
+
     }
 
     // Print identification number
@@ -103,10 +111,24 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
     std::cout << "dst IP: " << formatted_dest_ip << std::endl;
 
     // Print protocol type
-    std::cout << "protocol: " << protocol_to_string(ipv6_header->ip6_nxt) << std::endl;
+    std::string protocol = protocol_to_string(ipv6_header->ip6_nxt, 6);
+    std::cout << "protocol: " << protocol << std::endl;
+
+    // Check if the protocol is UDP or TCP and print dst and src port based on it
+    if (protocol == "UDP") {
+        const struct udphdr* udp_header = reinterpret_cast<const struct udphdr*>(ip_packet_data + sizeof(struct ip));
+        std::cout << "src port: " << std::dec << ntohs(udp_header->uh_sport) << std::endl;
+        std::cout << "dst port: " << std::dec << ntohs(udp_header->uh_dport) << std::endl;
+    } else if (protocol == "TCP") {
+        const struct tcphdr* tcp_header = reinterpret_cast<const struct tcphdr*>(ip_packet_data + sizeof(struct ip));
+        std::cout << "src port: " << std::dec << ntohs(tcp_header->th_sport) << std::endl;
+        std::cout << "dst port: " << std::dec << ntohs(tcp_header->th_dport) << std::endl;
+    }
 
     // Print payload length of the IPv6 packet
     std::cout << "payload length: " << ntohs(ipv6_header->ip6_plen) << " bytes" << std::endl;
+
+    //TODO print byte payload
 }
 
 void PacketParser::print_arp_info(const u_char* arp_packet_data) {
@@ -122,6 +144,8 @@ void PacketParser::print_arp_info(const u_char* arp_packet_data) {
     std::cout << "dst IP: " << dest_ip << std::endl;
 
     std::cout << std::endl;
+
+    //TODO print byte payload
 }
 
 /**
