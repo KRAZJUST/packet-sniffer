@@ -19,8 +19,8 @@ public:
     PacketSniffer(const Arguments& args);
     static void packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data);
     void start_sniffing();
-    std::string set_filter();
-    std::string get_interface_ip(const std::string& interface);
+    std::string set_filter() const;
+    std::string set_port_filter() const;
 
 private:
 

@@ -14,6 +14,10 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
             tcp = true;
         } else if ((arg == "-u" || arg == "--udp")) {
             udp = true;
+        } else if (arg == "-p" && i + 1 < argc) {
+            int port = std::stoi(argv[++i]);
+            port_source = port;
+            port_destination = port;
         } else if (arg == "--port-destination" && i + 1 < argc) {
             port_destination = std::stoi(argv[++i]);
         } else if (arg == "--port-source" && i + 1 < argc) {
@@ -48,7 +52,7 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
 }
 
 void Arguments::print_help() {
-    std::cout << "Usage: ./ipk-sniffer [-i interface | --interface interface] {-p port [--tcp|-t] [--udp|-u]} [--arp] [--icmp4] [--icmp6] [--igmp] [--mld] {-n num}\n"
+    std::cout << "Usage: ./ipk-sniffer [-i interface | --interface interface] {-p|--port-source|--port-destination port [--tcp|-t] [--udp|-u]} [--arp] [--icmp4] [--icmp6] [--igmp] [--mld] {-n num}\n"
               << "Options:\n"
               << "  -i, --interface interface   Specify network interface to sniff\n"
               << "  -t, --tcp                   Display TCP segments\n"
@@ -65,7 +69,7 @@ void Arguments::print_help() {
               << "  -h, --help                  Display this help message\n";
 }
 
-void Arguments::print_arguments(){
+void Arguments::print_arguments() const{
 
     // Debug prints for checking the correct parsing of arguments
     std::cout << "interface: " << interface << std::endl;

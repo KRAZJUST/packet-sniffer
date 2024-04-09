@@ -34,20 +34,19 @@ void PacketSniffer::start_sniffing() {
     if (pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr) < 0) {
         std::cerr << "ERR: pcap_loop failed." << std::endl;
     }
-    std::cout << "captured package" << std::endl;
     pcap_close(pcap_handle);
 }
 
 // Static member function to serve as a callback for pcap_loop
 void PacketSniffer::packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data) {
     // Cast the userData pointer back to PacketParser object
-    PacketParser* parser = reinterpret_cast<PacketParser*>(user_data);
+    auto parser = reinterpret_cast<PacketParser*>(user_data);
 
     // Call the print_packet member function of PacketParser
     parser->print_packet(user_data, pkthdr, packet_data);
 }
 
-std::string PacketSniffer::set_filter() {
+std::string PacketSniffer::set_filter() const {
     std::ostringstream filter;
 
     // Vector to store filter conditions
@@ -59,74 +58,58 @@ std::string PacketSniffer::set_filter() {
         protocol_filter << "(";
         bool added = false;
         if (arguments.tcp) {
-            protocol_filter << "tcp";
+            if(arguments.port_source != -1 || arguments.port_destination != -1){
+                protocol_filter << "(tcp)" << " and " << set_port_filter();
+            }
+            else {
+                protocol_filter << "tcp";
+            }
             added = true;
         }
         if (arguments.udp) {
-            if (added) protocol_filter << " or ";
-            protocol_filter << "udp";
+            if (added) protocol_filter << ") or (";
+            if(arguments.port_source != -1 || arguments.port_destination != -1){
+                protocol_filter << "(udp)" << " and " << set_port_filter();
+            }
+            else {
+                protocol_filter << "udp";
+            }
+
             added = true;
         }
         if (arguments.icmp4) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "icmp";
             added = true;
         }
         if (arguments.icmp6) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "icmp6";
             added = true;
         }
         if (arguments.arp) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "arp";
             added = true;
         }
         if (arguments.ndp) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "ndp";
             added = true;
         }
         if (arguments.igmp) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "igmp";
             added = true;
         }
         if (arguments.mld) {
-            if (added) protocol_filter << " or ";
+            if (added) protocol_filter << ") or (";
             protocol_filter << "mld";
             added = true;
         }
         protocol_filter << ")";
         filter_conditions.push_back(protocol_filter.str());
     }
-
-    // Add port filters if specified
-    if (arguments.port_destination != -1 || arguments.port_source != -1) {
-        std::ostringstream port_filter;
-        bool dst_port_added = false;
-
-        if (arguments.port_destination != -1) {
-            port_filter << "(dst port " << arguments.port_destination;
-            dst_port_added = true;
-            if(arguments.port_source != -1){
-                port_filter << "or ";
-            }
-        }
-        if (arguments.port_source != -1) {
-            if(dst_port_added){
-                port_filter << "src port " << arguments.port_source;
-            }
-            else {
-                port_filter << "(src port " << arguments.port_source;
-            }
-        }
-
-        port_filter << ")";
-        filter_conditions.push_back(port_filter.str());
-    }
-
-
 
 
     // Concatenate filter conditions with "and"
@@ -140,27 +123,30 @@ std::string PacketSniffer::set_filter() {
     return filter.str();
 }
 
-std::string PacketSniffer::get_interface_ip(const std::string& interface) {
-    struct ifaddrs *ifap, *ifa;
-    struct sockaddr_in *sa;
-    char *addr;
+std::string PacketSniffer::set_port_filter() const {
+    std::ostringstream port_filter;
 
-    if (getifaddrs(&ifap) == -1) {
-        std::cerr << "ERR: Couldn't get the interface address." << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    // Add port filters if specified
+    if (arguments.port_destination != -1 || arguments.port_source != -1) {
+        bool dst_port_added = false;
 
-    for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET) {
-            sa = (struct sockaddr_in *) ifa->ifa_addr;
-            addr = inet_ntoa(sa->sin_addr);
-            if (std::string(ifa->ifa_name) == interface) {
-                freeifaddrs(ifap);
-                return std::string(addr);
+        if (arguments.port_destination != -1) {
+            port_filter << "(dst port " << arguments.port_destination;
+            dst_port_added = true;
+            if(arguments.port_source != -1){
+                port_filter << " or ";
             }
         }
+        if (arguments.port_source != -1) {
+            if(dst_port_added){
+                port_filter << "src port " << arguments.port_source;
+            }
+            else {
+                port_filter << "(src port " << arguments.port_source;
+            }
+        }
+        port_filter << ")";
     }
 
-    freeifaddrs(ifap);
-    return "";
+    return port_filter.str();
 }

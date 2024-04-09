@@ -1,0 +1,3 @@
+/home/davidskalka/Documents/IPK-2/cmake-build-debug/CMakeFiles/IPK_2.dir
+/home/davidskalka/Documents/IPK-2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/davidskalka/Documents/IPK-2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
