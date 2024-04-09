@@ -5,12 +5,13 @@
 #include "packet_parser.h"
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <vector>
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <csignal>
 
 
 class PacketSniffer {
@@ -23,11 +24,14 @@ public:
     std::string set_port_filter() const;
 
 private:
-
+    pcap_t* pcap_handle;
     // Create and instance of Arguments
     Arguments arguments;
-    // Create an instance of PacketParser
-    PacketParser parser;
+    // Static pointer to hold the PacketSniffer instance
+    static PacketSniffer* global_packet_sniffer_instance;
+
+    pcap_t* get_pcap_handle() const;
+    static void signal_handler(int signum);
 };
 
 #endif // PACKET_SNIFFER_H

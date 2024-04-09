@@ -1,23 +1,29 @@
 #include "packet_sniffer.h"
 
-PacketSniffer::PacketSniffer(const Arguments& args) : arguments(args) {}
+// Define the static member
+PacketSniffer* PacketSniffer::global_packet_sniffer_instance = nullptr;
 
+PacketSniffer::PacketSniffer(const Arguments& args) : pcap_handle(nullptr), arguments(args){
+    PacketSniffer::global_packet_sniffer_instance = this;
+    signal(SIGINT, signal_handler);
+}
 
 void PacketSniffer::start_sniffing() {
     char errbuf[PCAP_ERRBUF_SIZE];
 
     // Open sniffing session
-    pcap_t* pcap_handle = pcap_open_live(arguments.interface.c_str(), BUFSIZ, 1, 1000, errbuf);
+    pcap_handle = pcap_open_live(arguments.interface.c_str(), BUFSIZ, 1, 1000, errbuf);
     if (pcap_handle == nullptr) {
         std::cerr << "ERR: Could not open interface " << errbuf << std::endl;
         exit(1);
     }
 
-    // Apply filter to capture only IPv4 or IPv6 packets
+    // Add filter for capturing packets based on the user provided arguments
     std::string filter = set_filter();
     std::cout << filter << std::endl;
 
-    struct bpf_program fp;  // Compiled filter program
+    // Compiled filter program
+    struct bpf_program fp{};
     if (pcap_compile(pcap_handle, &fp, filter.c_str(), 0, PCAP_NETMASK_UNKNOWN) == -1) {
         std::cerr << "ERR: Couldn't parse filter " << pcap_geterr(pcap_handle) << std::endl;
         pcap_close(pcap_handle);
@@ -149,4 +155,38 @@ std::string PacketSniffer::set_port_filter() const {
     }
 
     return port_filter.str();
+}
+
+/**
+ * @brief Function to terminate program after using CTRL+C
+ *
+ * @param signum
+ */
+void PacketSniffer::signal_handler(int signum) {
+    if (PacketSniffer::global_packet_sniffer_instance != nullptr) {
+        pcap_t* pcap_handle = PacketSniffer::global_packet_sniffer_instance->get_pcap_handle();
+
+        // Get statistics from pcap handle
+        pcap_stat stats{};
+        if (pcap_stats(pcap_handle, &stats) == 0) {
+            std::cout << std::endl;
+            std::cout << "Packets received:       " << stats.ps_recv << std::endl;
+            std::cout << "Packets dropped:        " << stats.ps_drop << std::endl;
+            std::cout << "Packets dropped by NIC: " << stats.ps_ifdrop << std::endl;
+        }
+
+        // Close the pcap handle before exiting
+        pcap_close(pcap_handle);
+    }
+
+    exit(0);
+}
+
+/**
+ * @brief Getter function to access pcap_handle
+ *
+ * @return
+ */
+pcap_t* PacketSniffer::get_pcap_handle() const {
+    return pcap_handle;
 }
