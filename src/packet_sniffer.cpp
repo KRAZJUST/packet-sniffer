@@ -90,7 +90,8 @@ std::string PacketSniffer::set_filter() const {
         }
         if (arguments.icmp6) {
             if (added) protocol_filter << ") or (";
-            protocol_filter << "icmp6";
+            // add filter for displaying only ICMPv6 request/response
+            protocol_filter << "(icmp6 and ((icmp6[0] == 128 and icmp6[1] == 0) or (icmp6[0] == 129 and icmp6[1] == 0)))";
             added = true;
         }
         if (arguments.arp) {

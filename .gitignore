@@ -10,5 +10,6 @@ ipk-sniffer
 .out
 .vscode
 .idea
+cmake-build-debug
 
 todo
