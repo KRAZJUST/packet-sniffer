@@ -15,6 +15,8 @@
 #include <netinet/udp.h>
 #include <netinet/tcp.h>
 #include <netinet/ip_icmp.h>
+#include <netinet/icmp6.h>
+#include <netinet/igmp.h>
 #include <vector>
 #include <ctime>
 
@@ -31,7 +33,8 @@ public:
     static const char* protocol_to_string(uint8_t protocol, int ipv_num);
     static void print_byte_offset(const u_char* data, unsigned int length);
     std::string format_ipv6_address(const std::string& ipv6_address);
-    static void print_icmp_info(const u_char* icmp_packet_data);
+    static void print_icmpv4_info(const u_char* icmp_packet_data);
+    static void print_icmpv6_info(const u_char* icmpv6_packet_data);
 
 };
 

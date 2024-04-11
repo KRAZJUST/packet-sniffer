@@ -101,7 +101,8 @@ std::string PacketSniffer::set_filter() const {
         }
         if (arguments.ndp) {
             if (added) protocol_filter << ") or (";
-            protocol_filter << "ndp";
+            // Filter for NDP packets (ICMPv6 with type 135)
+            protocol_filter << "icmp6 and icmp6[0] == 135";
             added = true;
         }
         if (arguments.igmp) {
@@ -111,7 +112,8 @@ std::string PacketSniffer::set_filter() const {
         }
         if (arguments.mld) {
             if (added) protocol_filter << ") or (";
-            protocol_filter << "mld";
+            // Filter for MLD packets (ICMPv6 with type 130)
+            protocol_filter << "icmp6 and icmp6[0] == 130";
             added = true;
         }
         protocol_filter << ")";

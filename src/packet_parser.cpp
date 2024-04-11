@@ -15,7 +15,7 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
     std::cout << "dst MAC: " << ether_ntoa((const struct ether_addr*)&eth_header->ether_dhost) << std::endl;
 
     // Extract and print frame length
-    std::cout << "frame length: " << pkthdr->len << " bytes" << std::endl;
+    std::cout << "frame length: " << std::dec << pkthdr->len << " bytes" << std::endl;
 
     // Determine the type of the next protocol
     uint16_t ether_type = ntohs(eth_header->ether_type);
@@ -34,6 +34,8 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
         // Unsupported protocol type
         std::cout << "Unsupported protocol type" << std::endl;
     }
+
+    print_byte_offset(packet_data, pkthdr->len);
 }
 
 const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
@@ -72,6 +74,7 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
     // Print protocol type
     std::string protocol = protocol_to_string(ip_header->ip_p, 4);
     std::cout << "protocol: " << protocol << std::endl;
+    
 
     // Print more specific information based on the protocol type
     if (protocol == "UDP") {
@@ -83,13 +86,14 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
         std::cout << "src port: " << std::dec << ntohs(tcp_header->th_sport) << std::endl;
         std::cout << "dst port: " << std::dec << ntohs(tcp_header->th_dport) << std::endl;
     } else if (protocol == "ICMPv4"){
-        print_icmp_info(ip_packet_data + sizeof(struct ip));
+        print_icmpv4_info(ip_packet_data + sizeof(struct ip));
+    } else if (protocol == "IGMP"){
+        // Extract IGMP header
+        const auto* igmp_header = reinterpret_cast<const struct igmp*>(ip_packet_data + sizeof(struct ip));
+        // Determine IGMP version based on message type
+        std::cout << std::dec << "IGMP version: " << igmp_header->igmp_type << std::endl;
     }
 
-    // Subtracting IP header length
-    unsigned int payload_length = ntohs(ip_header->ip_len) - ip_header->ip_hl * 4;
-    // Print byte offset
-    print_byte_offset(ip_packet_data + ip_header->ip_hl * 4, payload_length);
 }
 
 void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
@@ -122,16 +126,8 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
         std::cout << "src port: " << std::dec << ntohs(tcp_header->th_sport) << std::endl;
         std::cout << "dst port: " << std::dec << ntohs(tcp_header->th_dport) << std::endl;
     } else if (protocol == "ICMPv6"){
-        print_icmp_info(ip_packet_data + sizeof(struct ip6_hdr));
+        print_icmpv6_info(ip_packet_data + sizeof(struct ip6_hdr));
     }
-
-    // Print payload length of the IPv6 packet
-    std::cout << "payload length: " << ntohs(ipv6_header->ip6_plen) << " bytes" << std::endl;
-
-    // Subtracting IPv6 header length
-    unsigned int payload_length = ntohs(ipv6_header->ip6_plen);
-    // Print byte offset (length of IPv6 header is fixed at 40 bytes)
-    print_byte_offset(ip_packet_data + 40, payload_length);
 }
 
 void PacketParser::print_arp_info(const u_char* arp_packet_data, const struct pcap_pkthdr* pkthdr) {
@@ -145,12 +141,6 @@ void PacketParser::print_arp_info(const u_char* arp_packet_data, const struct pc
     inet_ntop(AF_INET, arp_header->arp_tpa, dest_ip, INET_ADDRSTRLEN);
     std::cout << "src IP: " << source_ip << std::endl;
     std::cout << "dst IP: " << dest_ip << std::endl;
-
-    std::cout << std::endl;
-
-    int arp_header_len = sizeof(struct ether_arp);
-    unsigned int payload_length = pkthdr->len - arp_header_len;
-    print_byte_offset(arp_packet_data + arp_header_len, payload_length);
 }
 
 /**
@@ -280,11 +270,20 @@ std::string PacketParser::format_ipv6_address(const std::string& ipv6_address) {
     return formatted_address.str();
 }
 
-void PacketParser::print_icmp_info(const u_char* icmp_packet_data) {
+void PacketParser::print_icmpv4_info(const u_char* icmp_packet_data) {
     // Extract ICMP header
     const auto* icmp_header = reinterpret_cast<const struct icmp*>(icmp_packet_data);
 
     // Print ICMP type and code
-    std::cout << "ICMP type: " << static_cast<int>(icmp_header->icmp_type) << std::endl;
-    std::cout << "ICMP code: " << static_cast<int>(icmp_header->icmp_code) << std::endl;
+    std::cout << "ICMPv4 type: " << static_cast<int>(icmp_header->icmp_type) << std::endl;
+    std::cout << "ICMPv4 code: " << static_cast<int>(icmp_header->icmp_code) << std::endl;
+}
+
+void PacketParser::print_icmpv6_info(const u_char* icmpv6_packet_data) {
+    // Extract ICMPv6 header
+    const auto* icmpv6_header = reinterpret_cast<const struct icmp6_hdr*>(icmpv6_packet_data);
+
+    // Print ICMPv6 type and code
+    std::cout << "ICMPv6 type: " << static_cast<int>(icmpv6_header->icmp6_type) << std::endl;
+    std::cout << "ICMPv6 code: " << static_cast<int>(icmpv6_header->icmp6_code) << std::endl;
 }
