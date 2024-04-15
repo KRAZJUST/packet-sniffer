@@ -11,8 +11,8 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
     auto* eth_header = (struct ether_header*)packet_data;
 
     // Print source and destination MAC addresses
-    std::cout << "src MAC: " << ether_ntoa((const struct ether_addr*)&eth_header->ether_shost) << std::endl;
-    std::cout << "dst MAC: " << ether_ntoa((const struct ether_addr*)&eth_header->ether_dhost) << std::endl;
+    std::cout << "src MAC: " << format_MAC(eth_header->ether_shost) << std::endl;
+    std::cout << "dst MAC: " << format_MAC(eth_header->ether_dhost) << std::endl;
 
     // Extract and print frame length
     std::cout << "frame length: " << std::dec << pkthdr->len << " bytes" << std::endl;
@@ -29,6 +29,7 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
         print_ipv6_info(packet_data + sizeof(struct ether_header));
     // ARP
     } else if (ether_type == ETHERTYPE_ARP) {
+        std::cout << "protocol: ARP" << std::endl;
         print_arp_info(packet_data + sizeof(struct ether_header), pkthdr);
     } else {
         // Unsupported protocol type
@@ -39,6 +40,7 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
 }
 
 const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
+    std::cout << protocol << std::endl;
     switch(protocol) {
         case IPPROTO_TCP:
             return "TCP";
@@ -51,6 +53,7 @@ const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
             else if(ipv_num == 6){
                 return "ICMPv6";
             }
+            return "Unknown";
         case IPPROTO_IGMP:
             return "IGMP";
         default:
@@ -114,7 +117,9 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
 
     // Print protocol type
     std::string protocol = protocol_to_string(ipv6_header->ip6_nxt, 6);
-    std::cout << "protocol: " << protocol << std::endl;
+    if(protocol != "ICMPv6"){
+        std::cout << "protocol: " << protocol << std::endl;
+    }
 
     // Print more specific information based on the protocol type
     if (protocol == "UDP") {
@@ -282,8 +287,34 @@ void PacketParser::print_icmpv4_info(const u_char* icmp_packet_data) {
 void PacketParser::print_icmpv6_info(const u_char* icmpv6_packet_data) {
     // Extract ICMPv6 header
     const auto* icmpv6_header = reinterpret_cast<const struct icmp6_hdr*>(icmpv6_packet_data);
+    
+    if(icmpv6_header->icmp6_type == 130 || icmpv6_header->icmp6_type == 131 || icmpv6_header->icmp6_type == 132 || icmpv6_header->icmp6_type == 143){
+        std::cout << "protocol: MLD" << std::endl;
+    } else if (icmpv6_header->icmp6_type == 133 || icmpv6_header->icmp6_type == 134 || icmpv6_header->icmp6_type == 135 || icmpv6_header->icmp6_type == 136 ||
+               icmpv6_header->icmp6_type == 137){
+        std::cout << "protocol: NDP" << std::endl;
+    } else{
+        std::cout << "protocol: ICMPv6" << std::endl;
+    }
 
     // Print ICMPv6 type and code
     std::cout << "ICMPv6 type: " << static_cast<int>(icmpv6_header->icmp6_type) << std::endl;
     std::cout << "ICMPv6 code: " << static_cast<int>(icmpv6_header->icmp6_code) << std::endl;
 }
+
+
+std::string PacketParser::format_MAC(const unsigned char *buffer) {
+    std::stringstream output;
+
+    output << std::hex << std::setfill('0');
+    
+    for (int i = 0; i < 6; i++) {
+        output << std::setw(2) << static_cast<int>(buffer[i]);
+        
+        if (i != 5) {
+            output << ":";
+        }
+    }
+    return output.str();
+}
+

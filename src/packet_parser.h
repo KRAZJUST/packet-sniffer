@@ -35,6 +35,7 @@ public:
     std::string format_ipv6_address(const std::string& ipv6_address);
     static void print_icmpv4_info(const u_char* icmp_packet_data);
     static void print_icmpv6_info(const u_char* icmpv6_packet_data);
+    std::string format_MAC(const unsigned char *buffer);
 
 };
 

@@ -101,8 +101,8 @@ std::string PacketSniffer::set_filter() const {
         }
         if (arguments.ndp) {
             if (added) protocol_filter << ") or (";
-            // Filter for NDP packets (ICMPv6 with type 135)
-            protocol_filter << "icmp6 and icmp6[0] == 135";
+            // router solicitation/router advertisment/neighbor solicitation/neighbor advertisment/redirect message
+            protocol_filter << "icmp6 and (icmp6[0] == 133 or icmp6[0] == 134 or icmp6[0] == 135 or icmp6[0] == 136 or icmp6[0] == 137)";
             added = true;
         }
         if (arguments.igmp) {
@@ -112,8 +112,8 @@ std::string PacketSniffer::set_filter() const {
         }
         if (arguments.mld) {
             if (added) protocol_filter << ") or (";
-            // Filter for MLD packets (ICMPv6 with type 130)
-            protocol_filter << "icmp6 and icmp6[0] == 130";
+            // query/report/done/discovery
+            protocol_filter << "icmp6 and (icmp6[0] == 130 or icmp6[0] == 131 or icmp6[0] == 132 or icmp6[0] == 143)";
             added = true;
         }
         protocol_filter << ")";

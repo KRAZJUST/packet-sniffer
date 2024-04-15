@@ -13,3 +13,7 @@ ipk-sniffer
 cmake-build-debug
 
 todo
+ipkSnifferTests.py
+requirements.txt
+env
+__pycache__
