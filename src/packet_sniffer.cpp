@@ -17,6 +17,8 @@
 PacketSniffer* PacketSniffer::global_packet_sniffer_instance = nullptr;
 // Set flag for received SIGINT to false
 std::atomic<bool> sigint_received(false);
+ // Count of received packets after filtering
+int packets_received_filtered = 0;
 
 PacketSniffer::PacketSniffer(const Arguments& args) : pcap_handle(nullptr), arguments(args){
     PacketSniffer::global_packet_sniffer_instance = this;
@@ -74,6 +76,9 @@ void PacketSniffer::start_sniffing() {
 
 // Static member function to serve as a callback for pcap_loop
 void PacketSniffer::packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data) {
+    // Count captured packets
+    packets_received_filtered++;
+
     // Cast the userData pointer back to PacketParser object
     auto parser = reinterpret_cast<PacketParser*>(user_data);
 
@@ -203,8 +208,9 @@ void PacketSniffer::signal_handler(int signum) {
         pcap_stat stats{};
         if (pcap_stats(pcap_handle, &stats) == 0) {
             std::cout << std::endl;
-            std::cout << "Packets received: " << stats.ps_recv << std::endl;
-            std::cout << "Packets dropped : " << stats.ps_drop << std::endl;
+            std::cout << "Packets received:             " << std::dec << stats.ps_recv << std::endl;
+            std::cout << "Packets received with filter: " << std::dec << packets_received_filtered << std::endl;
+            std::cout << "Packets dropped:              " << std::dec << stats.ps_drop << std::endl;
         }
 
         // Break the pcap loop
