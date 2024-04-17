@@ -15,7 +15,7 @@
 
 // Define the static member
 PacketSniffer* PacketSniffer::global_packet_sniffer_instance = nullptr;
-// Define a flag to indicate if a SIGINT signal has been received
+// Set flag for received SIGINT to false
 std::atomic<bool> sigint_received(false);
 
 PacketSniffer::PacketSniffer(const Arguments& args) : pcap_handle(nullptr), arguments(args){
@@ -61,9 +61,14 @@ void PacketSniffer::start_sniffing() {
     // Free the compiled filter program after it's been set
     pcap_freecode(&fp);
 
-    // Catch packets_num number of packets
-    if (pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr) < 0) {
-        std::cerr << "ERR: pcap_loop failed." << std::endl;
+    /// Catch packets_num number of packets and check if it was terminated by error or SIGINT
+    int loop_result = pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr);
+    if (loop_result == -1) {
+        std::cerr << "ERR: pcap_loop failed: " << pcap_geterr(pcap_handle) << std::endl;
+    } else if (loop_result == -2) {
+        //pcap terminated by breakloop(SIGINT)
+    } else {
+        //pcap terminated normaly
     }
 }
 
@@ -198,16 +203,14 @@ void PacketSniffer::signal_handler(int signum) {
         pcap_stat stats{};
         if (pcap_stats(pcap_handle, &stats) == 0) {
             std::cout << std::endl;
-            std::cout << "Packets received:       " << stats.ps_recv << std::endl;
-            std::cout << "Packets dropped:        " << stats.ps_drop << std::endl;
-            std::cout << "Packets dropped by NIC: " << stats.ps_ifdrop << std::endl;
+            std::cout << "Packets received: " << stats.ps_recv << std::endl;
+            std::cout << "Packets dropped : " << stats.ps_drop << std::endl;
         }
 
-        // Close the pcap handle before exiting
-        pcap_close(pcap_handle);
+        // Break the pcap loop
+        pcap_breakloop(pcap_handle);
     }
-
-    exit(0);
+    sigint_received.store(true);
 }
 
 /**

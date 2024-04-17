@@ -11,9 +11,14 @@ int main(int argc, char* argv[]){
     // Start sniffing
     sniffer->start_sniffing();
 
+    if(sigint_received.load()){
+        delete sniffer;
+        return 0;
+    }
+
     // Clean up
     delete sniffer;
 
-    
+
     return 0;
 }

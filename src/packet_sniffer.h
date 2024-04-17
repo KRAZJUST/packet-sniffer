@@ -14,6 +14,8 @@
 #include <csignal>
 #include <atomic>
 
+// Define a flag to indicate if a SIGINT signal has been received
+extern std::atomic<bool> sigint_received;
 
 class PacketSniffer {
 public:
