@@ -1,12 +1,34 @@
+/**
+ * @file packet_sniffer.cpp
+ * @author David Skalka (xskalk03@stud.fit.vutbr.cz)
+ * 
+ * @brief File implementing the logic for capturing and filtering the packets
+ *  
+ * @version 0.1
+ * @date 2024-04-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "packet_sniffer.h"
 
 // Define the static member
 PacketSniffer* PacketSniffer::global_packet_sniffer_instance = nullptr;
+// Define a flag to indicate if a SIGINT signal has been received
+std::atomic<bool> sigint_received(false);
 
 PacketSniffer::PacketSniffer(const Arguments& args) : pcap_handle(nullptr), arguments(args){
     PacketSniffer::global_packet_sniffer_instance = this;
     signal(SIGINT, signal_handler);
 }
+
+PacketSniffer::~PacketSniffer() {
+    if (pcap_handle != nullptr) {
+        pcap_close(pcap_handle);
+    }
+}
+
 
 void PacketSniffer::start_sniffing() {
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -36,11 +58,13 @@ void PacketSniffer::start_sniffing() {
         exit(1);
     }
 
+    // Free the compiled filter program after it's been set
+    pcap_freecode(&fp);
+
     // Catch packets_num number of packets
     if (pcap_loop(pcap_handle, arguments.packets_num, &PacketSniffer::packet_callback, nullptr) < 0) {
         std::cerr << "ERR: pcap_loop failed." << std::endl;
     }
-    pcap_close(pcap_handle);
 }
 
 // Static member function to serve as a callback for pcap_loop
@@ -50,6 +74,7 @@ void PacketSniffer::packet_callback(u_char* user_data, const struct pcap_pkthdr*
 
     // Call the print_packet member function of PacketParser
     parser->print_packet(user_data, pkthdr, packet_data);
+    std::cout << "-----------------------------------------------------------------------------" << std::endl;
 }
 
 std::string PacketSniffer::set_filter() const {

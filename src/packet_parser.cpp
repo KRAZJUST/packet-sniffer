@@ -40,7 +40,6 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
 }
 
 const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
-    std::cout << protocol << std::endl;
     switch(protocol) {
         case IPPROTO_TCP:
             return "TCP";
