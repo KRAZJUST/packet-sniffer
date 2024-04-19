@@ -19,6 +19,8 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
 
     // Determine the type of the next protocol
     uint16_t ether_type = ntohs(eth_header->ether_type);
+    std::cout << ether_type << std::endl;
+    std::cout << "IP - " << ETHERTYPE_IP << " " << "IPv6 - " << ETHERTYPE_IPV6 << " " << "ARP - " << ETHERTYPE_ARP << std::endl;
 
     // Delegate further printing based on the next protocol type
     // IPv4
