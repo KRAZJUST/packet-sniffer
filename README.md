@@ -10,9 +10,9 @@ This documentation describes an implementation of the network analyzer that is c
     - [Protocols and Headers](#protocols-and-headers)
   - [Usage](#usage)
   - [Source code](#source-code)
-    - [`Arguments`](#arguments)
-    - [`PacketSniffer`](#packetsniffer)
-    - [`PacketParser`](#packetparser)
+    - [Arguments](#arguments)
+    - [PacketSniffer](#packetsniffer)
+    - [PacketParser](#packetparser)
     - [UML Class Diagram](#uml-class-diagram)
     - [Interaction flow](#interaction-flow)
 
@@ -56,18 +56,17 @@ where supported command line arguments can be in any order and are described as 
 ## Source code
 The source code contains three classes: `Arguments`, `PacketSniffer`, and `PacketParser`, that are designed to provide packet capturing and analysis. In the following section will be each class shortly described, for a deeper understanding of implemented methods, please refer to the source code files, where each method is thoroughly described.
 
-### `Arguments`
+### Arguments
 - Responsible for parsing command-line arguments.
 - Stores information about network interface, protocol preferences, packet filters, and packet count.
 - Offers methods to print help information and available network interfaces.
 
-### `PacketSniffer`
+### PacketSniffer
 - Initializes and manages packet sniffing using libpcap.
-- Takes an `Arguments` object to configure sniffing parameters.
 - Provides a callback function `packet_callback` to process captured packets.
 - Offers methods to start and stop packet sniffing.
 
-### `PacketParser`
+### PacketParser
 - Handles parsing and printing of packet information.
 - Provides methods to print packet headers, timestamps, and byte offsets.
   
