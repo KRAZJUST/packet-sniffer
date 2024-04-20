@@ -44,12 +44,15 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
         } else if (arg == "-h" || arg == "--help") {
             print_help();
             exit(0);
+        } else {
+            std::cout << "Unknown argument. For more information run " << argv[0] << " -h / --help." << std::endl;
+            exit(0);
         }
     }
 
     if(interface.empty()){
         print_interfaces();
-        std::cout << "For more information run " << argv[0] << " -h" << std::endl;
+        std::cout << "For more information run " << argv[0] << " -h / --help." << std::endl;
         exit(0);
     }
 
