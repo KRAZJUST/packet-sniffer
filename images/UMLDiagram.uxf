@@ -1,0 +1,52 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>550</x><y>220</y><w>580</w><h>180</h></coordinates><panel_attributes>PacketSniffer
+--
+- pcap_handle: pcap_t*            
+- arguments: Arguments            
+- global_packet_sniffer_instance: PacketSniffer* 
+--
++ PacketSniffer(args: const Arguments&amp;)  
++ ~PacketSniffer()                          
++ static packet_callback(user_data: u_char*, pkthdr: const pcap_pkthdr*, packet_data: const u_char*)
++ start_sniffing()                              
++ set_filter(): std::string                   
++ set_port_filter(): std::string  </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>570</x><y>570</y><w>530</w><h>240</h></coordinates><panel_attributes>PacketParser
+--
+
+--
++ PacketParser()                   
++ print_packet(user_data: u_char*, pkthdr: const pcap_pkthdr*, packet_data: const u_char*) 
++ print_ipv4_info(ip_packet_data: const u_char*)                      
++ print_ipv6_info(ip_packet_data: const u_char*)                      
++ print_arp_info(ip_packet_data: const u_char*, pkthdr: const pcap_pkthdr*) 
++ print_timestamp(pkthdr: const pcap_pkthdr*)                          
++ protocol_to_string(protocol: uint8_t, ipv_num: int): const char* 
++ print_byte_offset(data: const u_char*, length: unsigned int)              
++ format_ipv6_address(ipv6_address: const std::string&amp;): std::string 
++ print_icmpv4_info(icmp_packet_data: const u_char*)                
++ print_icmpv6_info(icmpv6_packet_data: const u_char*)              
++ format_MAC(buffer: const unsigned char*): std::string                </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>90</x><y>170</y><w>280</w><h>290</h></coordinates><panel_attributes>Arguments
+--
+- interface: std::string      
+- tcp: bool                    
+- udp: bool                    
+- port_destination: int   
+- port_source: int          
+- icmp4: bool                
+- icmp6: bool                
+- arp: bool                    
+- ndp: bool                    
+- igmp: bool                  
+- mld: bool                    
+- packets_num: int
+--
++ Arguments(argc: int, argv: char*[])
++ parse_cmd_arguments(argc: int, argv: char*[])
++ print_help()                  
++ print_arguments() const  
++ print_interfaces()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>810</x><y>390</y><w>50</w><h>200</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=1..n
+use</panel_attributes><additional_attributes>10;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>300</y><w>210</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=1
+provides</panel_attributes><additional_attributes>10;20;190;20</additional_attributes></element></diagram>
