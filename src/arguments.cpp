@@ -9,7 +9,7 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "-i" || arg == "--interface") {
-            if(i + 1 < argc && argv[i+1][0] != '-') {
+            if(i + 1 < argc) {
                 interface = argv[++i];
             } else {
                 print_interfaces();
