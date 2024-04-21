@@ -292,18 +292,26 @@ void PacketParser::print_icmpv4_info(const u_char* icmp_packet_data) {
 void PacketParser::print_icmpv6_info(const u_char* icmpv6_packet_data) {
     // Extract ICMPv6 header
     const auto* icmpv6_header = reinterpret_cast<const struct icmp6_hdr*>(icmpv6_packet_data);
+    std::cout << "protocol: ICMPv6" << std::endl;
+    std::string icmp_type;
     
     if(icmpv6_header->icmp6_type == 130 || icmpv6_header->icmp6_type == 131 || icmpv6_header->icmp6_type == 132 || icmpv6_header->icmp6_type == 143){
-        std::cout << "protocol: MLD" << std::endl;
+        icmp_type = "MLD";
     } else if (icmpv6_header->icmp6_type == 133 || icmpv6_header->icmp6_type == 134 || icmpv6_header->icmp6_type == 135 || icmpv6_header->icmp6_type == 136 ||
                icmpv6_header->icmp6_type == 137){
-        std::cout << "protocol: NDP" << std::endl;
+        icmp_type = "NDP";
     } else{
-        std::cout << "protocol: ICMPv6" << std::endl;
+        icmp_type = "other";
     }
 
     // Print ICMPv6 type and code
-    std::cout << "ICMPv6 type: " << static_cast<int>(icmpv6_header->icmp6_type) << std::endl;
+    std::cout << "ICMPv6 type: " << static_cast<int>(icmpv6_header->icmp6_type);
+    if(icmp_type != "other"){
+        std::cout << " (" << icmp_type << ")" << std::endl;
+    }
+    else{
+        std::cout << std::endl;
+    }
     std::cout << "ICMPv6 code: " << static_cast<int>(icmpv6_header->icmp6_code) << std::endl;
 }
 
