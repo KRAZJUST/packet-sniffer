@@ -65,6 +65,7 @@ void Arguments::print_help() {
               << "  -i, --interface interface   Specify network interface to sniff\n"
               << "  -t, --tcp                   Display TCP segments\n"
               << "  -u, --udp                   Display UDP datagrams\n"
+              << "  -p port                     Filter TCP/UDP based on the destination OR source port number\n"
               << "  --port-destination port     Filter TCP/UDP based on destination port number\n"
               << "  --port-source port          Filter TCP/UDP based on source port number\n"
               << "  --icmp4                     Display only ICMPv4 packets\n"
