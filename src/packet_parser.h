@@ -30,7 +30,7 @@ public:
     void print_ipv6_info(const u_char* ip_packet_data);
     static void print_arp_info(const u_char* ip_packet_data, const struct pcap_pkthdr* pkthdr);
     static void print_timestamp(const struct pcap_pkthdr* pkthdr);
-    static const char* protocol_to_string(uint8_t protocol, int ipv_num);
+    static const char* protocol_to_string(uint8_t protocol);
     static void print_byte_offset(const u_char* data, unsigned int length);
     std::string format_ipv6_address(const std::string& ipv6_address);
     static void print_icmpv4_info(const u_char* icmp_packet_data);

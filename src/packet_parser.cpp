@@ -3,10 +3,20 @@
 PacketParser::PacketParser() {}
 
 void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data) {
+    // Check if the packet_data is null
+    if (packet_data == nullptr) {
+        std::cerr << "ERR: Packet data is null or corrupted." << std::endl;
+        return;
+    }
 
     // Print timestamp in RFC 3339 format
     print_timestamp(pkthdr);
 
+    // Check if packet_data contains at least the size of the Ethernet header
+    if (pkthdr->len < sizeof(struct ether_header)) {
+        std::cerr << "ERR: Packet data is too short to contain Ethernet header." << std::endl;
+        return;
+    }
     // Extract and print Ethernet header
     auto* eth_header = (struct ether_header*)packet_data;
 
@@ -39,22 +49,18 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
     print_byte_offset(packet_data, pkthdr->len);
 }
 
-const char* PacketParser::protocol_to_string(uint8_t protocol, int ipv_num) {
+const char* PacketParser::protocol_to_string(uint8_t protocol) {
     switch(protocol) {
         case IPPROTO_TCP:
             return "TCP";
         case IPPROTO_UDP:
             return "UDP";
         case IPPROTO_ICMP:
-            if(ipv_num == 4) {
-                return "ICMPv4";
-            }
-            else if(ipv_num == 6){
-                return "ICMPv6";
-            }
-            return "Unknown";
+            return "ICMPv4";
+        case IPPROTO_ICMPV6:
+            return "ICMPv6";
         case IPPROTO_IGMP:
-            return "IGMP";
+            return "IGMP";            
         default:
             return "Unknown";
     }
@@ -74,7 +80,7 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
     std::cout << "dst IP: " << dest_ip << std::endl;
 
     // Print protocol type
-    std::string protocol = protocol_to_string(ip_header->ip_p, 4);
+    std::string protocol = protocol_to_string(ip_header->ip_p);
     std::cout << "protocol: " << protocol << std::endl;
     
 
@@ -90,10 +96,6 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
     } else if (protocol == "ICMPv4"){
         print_icmpv4_info(ip_packet_data + sizeof(struct ip));
     } else if (protocol == "IGMP"){
-        // Extract IGMP header
-        const auto* igmp_header = reinterpret_cast<const struct igmp*>(ip_packet_data + sizeof(struct ip));
-        // Determine IGMP version based on message type
-        std::cout << std::dec << "IGMP version: " << igmp_header->igmp_type << std::endl;
     }
 
 }
@@ -115,18 +117,22 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
     std::cout << "dst IP: " << formatted_dest_ip << std::endl;
 
     // Print protocol type
-    std::string protocol = protocol_to_string(ipv6_header->ip6_nxt, 6);
+    uint8_t protocol_type = static_cast<uint8_t>(ipv6_header->ip6_nxt);
+    if(protocol_type == 0x00){
+        return;
+    }
+    std::string protocol = protocol_to_string(protocol_type);
     if(protocol != "ICMPv6"){
         std::cout << "protocol: " << protocol << std::endl;
     }
 
     // Print more specific information based on the protocol type
     if (protocol == "UDP") {
-        const auto* udp_header = reinterpret_cast<const struct udphdr*>(ip_packet_data + sizeof(struct ip));
+        const auto* udp_header = reinterpret_cast<const struct udphdr*>(ip_packet_data + sizeof(struct ip6_hdr));
         std::cout << "src port: " << std::dec << ntohs(udp_header->uh_sport) << std::endl;
         std::cout << "dst port: " << std::dec << ntohs(udp_header->uh_dport) << std::endl;
     } else if (protocol == "TCP") {
-        const auto* tcp_header = reinterpret_cast<const struct tcphdr*>(ip_packet_data + sizeof(struct ip));
+        const auto* tcp_header = reinterpret_cast<const struct tcphdr*>(ip_packet_data + sizeof(struct ip6_hdr));
         std::cout << "src port: " << std::dec << ntohs(tcp_header->th_sport) << std::endl;
         std::cout << "dst port: " << std::dec << ntohs(tcp_header->th_dport) << std::endl;
     } else if (protocol == "ICMPv6"){
