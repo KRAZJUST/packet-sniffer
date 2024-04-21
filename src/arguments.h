@@ -6,6 +6,7 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
+#include <pcap.h>
 
 class Arguments {
 public:

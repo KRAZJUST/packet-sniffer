@@ -95,7 +95,25 @@ void Arguments::print_arguments() const{
     std::cout << "packets_num: " << packets_num << std::endl;
 }
 
-void Arguments::print_interfaces(){
+void Arguments::print_interfaces() {
     std::cout << "No interface specified, use one of the following active interfaces:" << std::endl;
-    system("ip addr | grep 'state UP' -A2 | grep '^[0-9]' | awk '{print $2}' | cut -f1 -d'/'");
+
+    pcap_if_t* alldevs;
+    char errbuf[PCAP_ERRBUF_SIZE];
+
+    // Retrieve the list of all network interfaces
+    if (pcap_findalldevs(&alldevs, errbuf) == -1) {
+        std::cerr << "Error in pcap_findalldevs: " << errbuf << std::endl;
+        return;
+    }
+
+    // Iterate through the list of interfaces and print the names of active ones
+    for (pcap_if_t* d = alldevs; d != NULL; d = d->next) {
+        if (d->flags & PCAP_IF_UP && d->flags & PCAP_IF_RUNNING) {
+            std::cout << d->name << std::endl;
+        }
+    }
+
+    // Free the list of interfaces
+    pcap_freealldevs(alldevs);
 }
