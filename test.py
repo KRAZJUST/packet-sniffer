@@ -130,7 +130,9 @@ def test_send_tcp_packet():
             "frame length": packet_len,
             "src IP": sent_packet[IP].src,
             "dst IP": sent_packet[IP].dst,
-            "protocol": "TCP"
+            "protocol": "TCP",
+            "src port": str(sent_packet[TCP].sport),
+            "dst port": str(sent_packet[TCP].dport)
         }
 
         print("\033[94mSEND PACKET INFO:\033[0m", sent_packet_info)
@@ -183,7 +185,9 @@ def test_send_udp_packet():
             "frame length": packet_len,
             "src IP": sent_packet[IP].src,
             "dst IP": sent_packet[IP].dst,
-            "protocol": "UDP"
+            "protocol": "UDP",
+            "src port": str(sent_packet[UDP].sport),
+            "dst port": str(sent_packet[UDP].dport)
         }
         print("\033[94mSEND PACKET INFO:\033[0m", sent_packet_info)
 
