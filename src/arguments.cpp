@@ -56,7 +56,7 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
         exit(0);
     }
 
-    print_arguments();
+    //print_arguments();
 }
 
 void Arguments::print_help() {
