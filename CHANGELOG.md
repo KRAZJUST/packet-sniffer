@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Limitations
 
-The client application is developed only for `Linux` operating system
+- The `Network Sniffer` is developed only for `Linux` operating system
+- The support for only `LINKTYPE_ETHERNET` is implemented
 
 ### 🚀 Features
 
