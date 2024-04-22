@@ -579,4 +579,4 @@ This project is licensed under the `GPL License` - see the [`LICENSE`](LICENSE) 
 
 NESFIT. (2024). IPK-Projects-2024. [Git Repository]. Availible at <https://git.fit.vutbr.cz/NESFIT/IPK-Projects-2024>
 
-[bom-d-van. mysql-tcpdump.sh. GitHub Gist. URL](https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb)
+[bom-d-van. mysql-tcpdump.sh. GitHub Gist](https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb). Availible at <https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb>
