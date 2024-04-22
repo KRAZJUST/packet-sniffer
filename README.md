@@ -22,6 +22,8 @@ This documentation describes an implementation of the network analyzer that is c
     - [Command-line argument](#command-line-argument)
     - [Setting up the filter](#setting-up-the-filter)
     - [Capturing and printing the packets](#capturing-and-printing-the-packets)
+    - [Automatic tests](#automatic-tests)
+  - [License](#license)
 
 ## Theory
 
@@ -474,3 +476,11 @@ Wireshark hex dump:
 0010   08 00 06 04 00 01 00 00 00 00 00 00 7f 00 00 01
 0020   00 00 00 00 00 00 7f 00 00 01
 ```
+
+### Automatic tests
+
+For the testing purpose were implemented testing `Python script` that is sending different packets and comparing them with packets captured by `Network Sniffer` to verify correct functionality.
+
+## License
+
+This project is licensed under the `GPL License` - see the [`LICENSE`](LICENSE) file for details.
