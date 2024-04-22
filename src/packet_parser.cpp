@@ -273,6 +273,9 @@ std::string PacketParser::format_ipv6_address(const std::string& ipv6_address) {
             formatted_address << components[i];
             if (i != components.size() - 1) {
                 formatted_address << ":";
+                if(i == 0){
+                    formatted_address << ":";
+                }
             }
         }
     }
