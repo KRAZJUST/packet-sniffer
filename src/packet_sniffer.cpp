@@ -56,7 +56,6 @@ void PacketSniffer::start_sniffing() {
 
     // Add filter for capturing packets based on the user provided arguments
     std::string filter = set_filter();
-    std::cout << filter << std::endl;
 
     // Compiled filter program
     struct bpf_program fp{};
