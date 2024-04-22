@@ -20,18 +20,30 @@ std::atomic<bool> sigint_received(false);
  // Count of received packets after filtering
 int packets_received_filtered = 0;
 
+/**
+ * @brief Construct a new Packet Sniffer:: Packet Sniffer object
+ * 
+ * @param args 
+ */
 PacketSniffer::PacketSniffer(const Arguments& args) : pcap_handle(nullptr), arguments(args){
     PacketSniffer::global_packet_sniffer_instance = this;
     signal(SIGINT, signal_handler);
 }
 
+/**
+ * @brief Destroy the Packet Sniffer:: Packet Sniffer object
+ * 
+ */
 PacketSniffer::~PacketSniffer() {
     if (pcap_handle != nullptr) {
         pcap_close(pcap_handle);
     }
 }
 
-
+/**
+ * @brief Function handling the capture of packets
+ * 
+ */
 void PacketSniffer::start_sniffing() {
     char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -74,7 +86,13 @@ void PacketSniffer::start_sniffing() {
     }
 }
 
-// Static member function to serve as a callback for pcap_loop
+/**
+ * @brief Static member function to serve as a callback for pcap_loop
+ * 
+ * @param user_data 
+ * @param pkthdr 
+ * @param packet_data 
+ */
 void PacketSniffer::packet_callback(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data) {
     // Count captured packets
     packets_received_filtered++;
@@ -87,6 +105,11 @@ void PacketSniffer::packet_callback(u_char* user_data, const struct pcap_pkthdr*
     std::cout << "-----------------------------------------------------------------------------" << std::endl;
 }
 
+/**
+ * @brief Function for setting the PCAP filter based on the command-line arguments
+ * 
+ * @return std::string 
+ */
 std::string PacketSniffer::set_filter() const {
     std::ostringstream filter;
 
@@ -167,6 +190,11 @@ std::string PacketSniffer::set_filter() const {
     return filter.str();
 }
 
+/**
+ * @brief Function to set filter for ports if TCP od UDP argument was specified
+ * 
+ * @return std::string 
+ */
 std::string PacketSniffer::set_port_filter() const {
     std::ostringstream port_filter;
 

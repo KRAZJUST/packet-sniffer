@@ -1,3 +1,16 @@
+/**
+ * @file sniffer.cpp
+ * @author David Skalka (xskalk03@stud.fit.vutbr.cz)
+ * 
+ * @brief File containting main function for ipk-sniffer
+ * 
+ * @version 0.1
+ * @date 2024-04-22
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "sniffer.h"
 
 int main(int argc, char* argv[]){

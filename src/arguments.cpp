@@ -1,10 +1,34 @@
+/**
+ * @file arguments.cpp
+ * @author David Skalka (xskalk03@stud.fit.vutbr.cz)
+ * 
+ * @brief File implementing command-line argument parsing
+ * 
+ * @version 0.1
+ * @date 2024-04-22
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "arguments.h"
 
-
+/**
+ * @brief Construct a new Arguments:: Arguments object
+ * 
+ * @param argc 
+ * @param argv 
+ */
 Arguments::Arguments(int argc, char* argv[]) {
     parse_cmd_arguments(argc, argv);
 }
 
+/**
+ * @brief Function for parsing command-line arguments
+ * 
+ * @param argc 
+ * @param argv 
+ */
 void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -59,6 +83,10 @@ void Arguments::parse_cmd_arguments(int argc, char* argv[]) {
     //print_arguments();
 }
 
+/**
+ * @brief Function to print help
+ * 
+ */
 void Arguments::print_help() {
     std::cout << "Usage: ./ipk-sniffer [-i interface | --interface interface] {-p|--port-source|--port-destination port [--tcp|-t] [--udp|-u]} [--arp] [--icmp4] [--icmp6] [--igmp] [--mld] {-n num}\n"
               << "Options:\n"
@@ -78,8 +106,11 @@ void Arguments::print_help() {
               << "  -h, --help                  Display this help message\n";
 }
 
+/**
+ * @brief Helper function fo debuging
+ * 
+ */
 void Arguments::print_arguments() const{
-
     // Debug prints for checking the correct parsing of arguments
     std::cout << "interface: " << interface << std::endl;
     std::cout << "tcp: " << tcp << std::endl;
@@ -95,6 +126,10 @@ void Arguments::print_arguments() const{
     std::cout << "packets_num: " << packets_num << std::endl;
 }
 
+/**
+ * @brief Function to print active interfaces
+ * 
+ */
 void Arguments::print_interfaces() {
     std::cout << "No interface specified, use one of the following active interfaces:" << std::endl;
 

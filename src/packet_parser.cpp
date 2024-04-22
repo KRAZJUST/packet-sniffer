@@ -1,7 +1,31 @@
+/**
+ * @file packet_parser.cpp
+ * @author David Skalka (xskalk03@stud.fit.vutbr.cz)
+ * 
+ * @brief File implementing logic for parsing and printing captured packet
+ * 
+ * @version 0.1
+ * @date 2024-04-22
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "packet_parser.h"
 
+/**
+ * @brief Construct a new Packet Parser:: Packet Parser object
+ * 
+ */
 PacketParser::PacketParser() {}
 
+/**
+ * @brief Function for printing captured packet
+ * 
+ * @param user_data 
+ * @param pkthdr 
+ * @param packet_data 
+ */
 void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkthdr, const u_char* packet_data) {
     // Check if the packet_data is null
     if (packet_data == nullptr) {
@@ -49,6 +73,13 @@ void PacketParser::print_packet(u_char* user_data, const struct pcap_pkthdr* pkt
     print_byte_offset(packet_data, pkthdr->len);
 }
 
+
+/**
+ * @brief Function to convert protocol into stirng representation
+ * 
+ * @param protocol 
+ * @return const char* 
+ */
 const char* PacketParser::protocol_to_string(uint8_t protocol) {
     switch(protocol) {
         case IPPROTO_TCP:
@@ -66,6 +97,11 @@ const char* PacketParser::protocol_to_string(uint8_t protocol) {
     }
 }
 
+/**
+ * @brief Function to print information about IPv4 packet
+ * 
+ * @param ip_packet_data 
+ */
 void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
 
     // Extract IPv4 header
@@ -100,6 +136,11 @@ void PacketParser::print_ipv4_info(const u_char* ip_packet_data) {
 
 }
 
+/**
+ * @brief Function to print information about IPv6 packet
+ * 
+ * @param ip_packet_data 
+ */
 void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
     // Extract IPv6 header
     const auto* ipv6_header = reinterpret_cast<const struct ip6_hdr*>(ip_packet_data);
@@ -140,6 +181,12 @@ void PacketParser::print_ipv6_info(const u_char* ip_packet_data) {
     }
 }
 
+/**
+ * @brief Function to print information about ARP packet
+ * 
+ * @param arp_packet_data 
+ * @param pkthdr 
+ */
 void PacketParser::print_arp_info(const u_char* arp_packet_data, const struct pcap_pkthdr* pkthdr) {
     // Extract ARP header
     const auto* arp_header = reinterpret_cast<const struct ether_arp*>(arp_packet_data);
@@ -154,7 +201,7 @@ void PacketParser::print_arp_info(const u_char* arp_packet_data, const struct pc
 }
 
 /**
- * @brief Function to print package's timestamp in
+ * @brief Function to print package's timestamp according to RFC 3339
  *
  * @param pkthdr
  */
@@ -283,6 +330,11 @@ std::string PacketParser::format_ipv6_address(const std::string& ipv6_address) {
     return formatted_address.str();
 }
 
+/**
+ * @brief Function to print aditional information about ICMPv4 packet
+ * 
+ * @param icmp_packet_data 
+ */
 void PacketParser::print_icmpv4_info(const u_char* icmp_packet_data) {
     // Extract ICMP header
     const auto* icmp_header = reinterpret_cast<const struct icmp*>(icmp_packet_data);
@@ -292,6 +344,11 @@ void PacketParser::print_icmpv4_info(const u_char* icmp_packet_data) {
     std::cout << "ICMPv4 code: " << static_cast<int>(icmp_header->icmp_code) << std::endl;
 }
 
+/**
+ * @brief Function to print aditional information about ICMPv6 packet
+ * 
+ * @param icmpv6_packet_data 
+ */
 void PacketParser::print_icmpv6_info(const u_char* icmpv6_packet_data) {
     // Extract ICMPv6 header
     const auto* icmpv6_header = reinterpret_cast<const struct icmp6_hdr*>(icmpv6_packet_data);
@@ -318,7 +375,12 @@ void PacketParser::print_icmpv6_info(const u_char* icmpv6_packet_data) {
     std::cout << "ICMPv6 code: " << static_cast<int>(icmpv6_header->icmp6_code) << std::endl;
 }
 
-
+/**
+ * @brief Function to format MAC address
+ * 
+ * @param buffer 
+ * @return std::string 
+ */
 std::string PacketParser::format_MAC(const unsigned char *buffer) {
     std::stringstream output;
 
