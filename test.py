@@ -4,6 +4,8 @@ import subprocess
 import time
 from scapy.all import Ether, IP, TCP, UDP, ARP, ICMP, sendp, IPv6, ICMPv6EchoRequest
 from scapy.layers.inet6 import _ICMPv6 as ICMPv6
+from scapy.layers.inet6 import ICMPv6ND_NS
+import os
 
 def print_passed(message):
     """
@@ -16,6 +18,13 @@ def print_failed(message):
     Print a message indicating a test failed in red.
     """
     print("\033[91m[FAILED]\033[0m", message)
+
+def print_centered_line(text, color_code):
+    terminal_width = os.get_terminal_size().columns
+    padding_length = (terminal_width - len(text)) // 2
+    padding = "-" * padding_length
+    line = padding + f"\033[{color_code}{text}\033[0m" + padding
+    print(line)
 
 def start_sniffer(interface, options):
     """
@@ -82,6 +91,27 @@ def send_icmpv4_packet():
     # Return the packet
     return icmpv4_packet, packet_length_str
 
+
+def send_ndp_packet():
+    """
+    Send an NDP (Neighbor Discovery Protocol) packet.
+    """
+    # Craft NDP packet
+    ndp_packet = Ether() / IPv6(dst="ff02::1") / ICMPv6ND_NS()
+    packet_length_str = str(len(ndp_packet)) + " bytes"
+    # Return the packet
+    return ndp_packet, packet_length_str
+
+def send_igmp_packet():
+    """
+    Send an IGMP packet.
+    """
+    # Craft IGMP packet
+    igmp_packet = Ether() / IP(dst="224.0.0.1") / IGMP(type=0x16)
+    packet_length_str = str(len(igmp_packet)) + " bytes"
+    # Return the packet
+    return igmp_packet, packet_length_str
+
 def capture_output(process):
     """
     Capture output of ipk-sniffer process.
@@ -100,7 +130,7 @@ def parse_captured_packet(output):
     lines = lines[1:]
 
     for line in lines:
-        parts = line.split(":")
+        parts = line.split(":", 1)
         if len(parts) == 2:
             if parts[0].strip() == '00000000':
                 break
@@ -125,8 +155,8 @@ def test_send_tcp_packet():
         
         # Save sent packet information
         sent_packet_info = {
-            #"src_mac": sent_packet[Ether].src,
-            #"dst_mac": sent_packet[Ether].dst,
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
             "frame length": packet_len,
             "src IP": sent_packet[IP].src,
             "dst IP": sent_packet[IP].dst,
@@ -180,8 +210,8 @@ def test_send_udp_packet():
         
         # Save sent packet information
         sent_packet_info = {
-            #"src_mac": sent_packet[Ether].src,
-            #"dst_mac": sent_packet[Ether].dst,
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
             "frame length": packet_len,
             "src IP": sent_packet[IP].src,
             "dst IP": sent_packet[IP].dst,
@@ -234,8 +264,8 @@ def test_send_arp_packet():
         
         # Save sent packet information
         sent_packet_info = {
-            #"src_mac": sent_packet[Ether].src,
-            #"dst_mac": sent_packet[Ether].dst,
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
             "frame length": packet_len,
             "src IP": sent_packet[ARP].psrc,
             "dst IP": sent_packet[ARP].pdst,
@@ -286,8 +316,8 @@ def test_send_icmpv6_packet():
         
         # Save sent packet information
         sent_packet_info = {
-            #"src_mac": sent_packet[Ether].src,
-            #"dst_mac": sent_packet[Ether].dst,
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
             "frame length": packet_len,
             "src IP": sent_packet[IPv6].src,
             "dst IP": sent_packet[IPv6].dst,
@@ -338,8 +368,8 @@ def test_send_icmpv4_packet():
         
         # Save sent packet information
         sent_packet_info = {
-            #"src_mac": sent_packet[Ether].src,
-            #"dst_mac": sent_packet[Ether].dst,
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
             "frame length": packet_len,
             "src IP": sent_packet[IP].src,
             "dst IP": sent_packet[IP].dst,
@@ -374,15 +404,125 @@ def test_send_icmpv4_packet():
         stop_sniffer(sniffer_process)
 
 
+def test_send_igmp_packet():
+    """
+    Test sending an IGMP packet and capturing it with ipk-sniffer.
+    """
+    try:
+        # Start the sniffer
+        sniffer_process = start_sniffer("lo", ["--igmp", "-n", "1"])
+
+        # Wait for the sniffer to initialize
+        time.sleep(1)
+
+        # Send IGMP packet
+        sent_packet, packet_len = send_igmp_packet()
+        
+        # Save sent packet information
+        sent_packet_info = {
+            "frame length": packet_len,
+            "src IP": sent_packet[IP].src,
+            "dst IP": sent_packet[IP].dst,
+            "protocol": "IGMP"
+        }
+        print("\033[94mSEND PACKET INFO:\033[0m", sent_packet_info)
+
+        sendp(sent_packet, iface="lo")
+
+        # Wait for packet to be captured
+        time.sleep(1)
+
+        # Capture output of ipk-sniffer
+        sniffer_output = capture_output(sniffer_process)
+
+        # Parse captured packet information
+        captured_packet_info = parse_captured_packet(sniffer_output)
+        print("\033[93mCAPTURED PACKET INFO:\033[0m", captured_packet_info)
+
+        # Compare packet information
+        for key, value in sent_packet_info.items():
+            assert captured_packet_info.get(key) == value, f"{key} mismatch"
+
+        print_passed("IGMP packet test passed successfully")
+
+    except Exception as e:
+        print_failed("IGMP packet test failed:")
+        print(e)
+
+    finally:
+        # Stop the sniffer
+        stop_sniffer(sniffer_process)
+
+
+def test_send_ndp_packet():
+    """
+    Test sending an NDP packet and capturing it with ipk-sniffer.
+    """
+    try:
+        # Start the sniffer
+        sniffer_process = start_sniffer("lo", ["--ndp", "-n", "1"])
+
+        # Wait for the sniffer to initialize
+        time.sleep(1)
+
+        # Send NDP packet
+        sent_packet, packet_len = send_ndp_packet()
+        
+        # Save sent packet information
+        sent_packet_info = {
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
+            "frame length": packet_len,
+            "src IP": sent_packet[IPv6].src,
+            "dst IP": sent_packet[IPv6].dst,
+            "protocol": "ICMPv6",
+            "ICMPv6 type": "135 (NDP)"
+
+        }
+        print("\033[94mSEND PACKET INFO:\033[0m", sent_packet_info)
+
+        sendp(sent_packet, iface="lo")
+
+        # Wait for packet to be captured
+        time.sleep(1)
+
+        # Capture output of ipk-sniffer
+        sniffer_output = capture_output(sniffer_process)
+
+        # Parse captured packet information
+        captured_packet_info = parse_captured_packet(sniffer_output)
+        print("\033[93mCAPTURED PACKET INFO:\033[0m", captured_packet_info)
+
+        # Compare packet information
+        for key, value in sent_packet_info.items():
+            assert captured_packet_info.get(key) == value, f"{key} mismatch"
+
+        print_passed("NDP packet test passed successfully")
+
+    except Exception as e:
+        print_failed("NDP packet test failed:")
+        print(e)
+
+    finally:
+        # Stop the sniffer
+        stop_sniffer(sniffer_process)
+
+
 if __name__ == "__main__":
     # Run the tests
+    print_centered_line("[TCP TEST]", "96;1m")
     test_send_tcp_packet()
-    print('____________________________________________________________________________________________________________________________________')
+    print_centered_line("[UDP TEST]", "96;1m")
     test_send_udp_packet()
-    print('____________________________________________________________________________________________________________________________________')
+    print_centered_line("[ARP TEST]", "96;1m")
     test_send_arp_packet()
-    print('____________________________________________________________________________________________________________________________________')
+    print_centered_line("[ICMPv6 TEST]", "96;1m")
     test_send_icmpv6_packet()
-    print('____________________________________________________________________________________________________________________________________')
+    print_centered_line("[ICMPv4 TEST]", "96;1m")
     test_send_icmpv4_packet()
+    print_centered_line("[IGMP TEST]", "96;1m")
+    test_send_igmp_packet()
+    print_centered_line("[NDP TEST]", "96;1m")
+    test_send_ndp_packet()
     print('____________________________________________________________________________________________________________________________________')
+
