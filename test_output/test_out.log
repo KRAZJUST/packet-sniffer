@@ -1,0 +1,42 @@
+.......-----------------------------------[96;1m[TCP TEST][0m-----------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '00:00:00:00:00:00', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '54 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.39', 'protocol': 'TCP', 'src port': '443', 'dst port': '34860'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:28:48.105+0200', 'src MAC': '00:00:00:00:00:00', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '54 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.39', 'protocol': 'TCP', 'src port': '443', 'dst port': '34860'}
+[92m[PASSED][0m TCP packet test passed successfully
+-----------------------------------[96;1m[UDP TEST][0m-----------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '00:00:00:00:00:00', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.39', 'protocol': 'UDP', 'src port': '12345', 'dst port': '53'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:28:50.132+0200', 'src MAC': '00:00:00:00:00:00', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.39', 'protocol': 'UDP', 'src port': '12345', 'dst port': '53'}
+[92m[PASSED][0m UDP packet test passed successfully
+-----------------------------------[96;1m[ARP TEST][0m-----------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.1', 'protocol': 'ARP'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:28:52.159+0200', 'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '42 bytes', 'protocol': 'ARP', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.1'}
+[92m[PASSED][0m ARP packet test passed successfully
+---------------------------------[96;1m[ICMPv6 TEST][0m---------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '62 bytes', 'src IP': 'fe80::14f1:97d6:c1fd:aaaf', 'dst IP': 'fe80::1', 'protocol': 'ICMPv6'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:28:57.285+0200', 'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': 'ff:ff:ff:ff:ff:ff', 'frame length': '62 bytes', 'src IP': 'fe80::14f1:97d6:c1fd:aaaf', 'dst IP': 'fe80::1', 'protocol': 'ICMPv6', 'ICMPv6 type': '128', 'ICMPv6 code': '0'}
+[92m[PASSED][0m ICMPv6 packet test passed successfully
+---------------------------------[96;1m[ICMPv4 TEST][0m---------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': '50:a5:dc:e1:b3:c6', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.1', 'protocol': 'ICMPv4'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:28:59.340+0200', 'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': '50:a5:dc:e1:b3:c6', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '192.168.0.1', 'protocol': 'ICMPv4', 'ICMPv4 type': '8', 'ICMPv4 code': '0'}
+[92m[PASSED][0m ICMPv4 packet test passed successfully
+----------------------------------[96;1m[IGMP TEST][0m----------------------------------
+[94mSEND PACKET INFO:[0m {'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '224.0.0.1', 'protocol': 'IGMP'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:29:01.365+0200', 'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': '01:00:5e:00:00:01', 'frame length': '42 bytes', 'src IP': '192.168.0.39', 'dst IP': '224.0.0.1', 'protocol': 'IGMP'}
+[92m[PASSED][0m IGMP packet test passed successfully
+-----------------------------------[96;1m[NDP TEST][0m-----------------------------------
+[94mSEND PACKET INFO:[0m {'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': '33:33:00:00:00:01', 'frame length': '78 bytes', 'src IP': 'fe80::14f1:97d6:c1fd:aaaf', 'dst IP': 'ff02::1', 'protocol': 'ICMPv6', 'ICMPv6 type': '135 (NDP)'}
+
+Sent 1 packets.
+[93mCAPTURED PACKET INFO:[0m {'timestamp': '2024-04-22T13:29:03.388+0200', 'src MAC': '28:f1:0e:2d:20:c5', 'dst MAC': '33:33:00:00:00:01', 'frame length': '78 bytes', 'src IP': 'fe80::14f1:97d6:c1fd:aaaf', 'dst IP': 'ff02::1', 'protocol': 'ICMPv6', 'ICMPv6 type': '135 (NDP)', 'ICMPv6 code': '0'}
+[92m[PASSED][0m NDP packet test passed successfully

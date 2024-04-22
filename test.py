@@ -3,9 +3,12 @@
 import subprocess
 import time
 from scapy.all import Ether, IP, TCP, UDP, ARP, ICMP, sendp, IPv6, ICMPv6EchoRequest
-from scapy.layers.inet6 import _ICMPv6 as ICMPv6
+from scapy.layers.inet6 import _ICMPv6 as ICMPv6, ICMPv6MLReport2
 from scapy.layers.inet6 import ICMPv6ND_NS
 import os
+from scapy.contrib.igmp import IGMP
+import sys
+
 
 def print_passed(message):
     """
@@ -20,7 +23,11 @@ def print_failed(message):
     print("\033[91m[FAILED]\033[0m", message)
 
 def print_centered_line(text, color_code):
-    terminal_width = os.get_terminal_size().columns
+    # Check if running in an interactive terminal
+    if os.isatty(sys.stdout.fileno()):
+        terminal_width = os.get_terminal_size().columns
+    else:
+        terminal_width = 80  # Default terminal width
     padding_length = (terminal_width - len(text)) // 2
     padding = "-" * padding_length
     line = padding + f"\033[{color_code}{text}\033[0m" + padding
@@ -111,6 +118,16 @@ def send_igmp_packet():
     packet_length_str = str(len(igmp_packet)) + " bytes"
     # Return the packet
     return igmp_packet, packet_length_str
+
+def send_mld_packet():
+    """
+    Send an MLD packet.
+    """
+    # Craft MLD packet
+    mld_packet = Ether() / IPv6(dst="ff02::16") / ICMPv6MLReport2(group="ff3e::1")
+    packet_length_str = str(len(mld_packet)) + " bytes"
+    # Return the packet
+    return mld_packet, packet_length_str
 
 def capture_output(process):
     """
@@ -507,6 +524,57 @@ def test_send_ndp_packet():
         # Stop the sniffer
         stop_sniffer(sniffer_process)
 
+def test_send_mld_packet():
+    """
+    Test sending an MLD packet and capturing it with ipk-sniffer.
+    """
+    try:
+        # Start the sniffer
+        sniffer_process = start_sniffer("lo", ["--mld", "-n", "1"])
+
+        # Wait for the sniffer to initialize
+        time.sleep(1)
+
+        # Send MLD packet
+        sent_packet, packet_len = send_mld_packet()
+        
+        # Save sent packet information
+        sent_packet_info = {
+            "src MAC": sent_packet[Ether].src,
+            "dst MAC": sent_packet[Ether].dst,
+            "frame length": packet_len,
+            "src IP": sent_packet[IPv6].src,
+            "dst IP": sent_packet[IPv6].dst,
+            "protocol": "ICMPv6",
+            "ICMPv6 type": "143 (MLD)"
+        }
+        print("\033[94mSEND PACKET INFO:\033[0m", sent_packet_info)
+
+        sendp(sent_packet, iface="lo")
+
+        # Wait for packet to be captured
+        time.sleep(1)
+
+        # Capture output of ipk-sniffer
+        sniffer_output = capture_output(sniffer_process)
+
+        # Parse captured packet information
+        captured_packet_info = parse_captured_packet(sniffer_output)
+        print("\033[93mCAPTURED PACKET INFO:\033[0m", captured_packet_info)
+
+        # Compare packet information
+        for key, value in sent_packet_info.items():
+            assert captured_packet_info.get(key) == value, f"{key} mismatch"
+
+        print_passed("MLD packet test passed successfully")
+
+    except Exception as e:
+        print_failed("MLD packet test failed:")
+        print(e)
+
+    finally:
+        # Stop the sniffer
+        stop_sniffer(sniffer_process)
 
 if __name__ == "__main__":
     # Run the tests
@@ -524,4 +592,7 @@ if __name__ == "__main__":
     test_send_igmp_packet()
     print_centered_line("[NDP TEST]", "96;1m")
     test_send_ndp_packet()
+    # NOT IMPLEMENTED YET
+    #print_centered_line("[MLD TEST]", "96;1m")
+    #test_send_mld_packet()
 

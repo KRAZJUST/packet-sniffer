@@ -24,6 +24,7 @@ This documentation describes an implementation of the network analyzer that is c
     - [Capturing and printing the packets](#capturing-and-printing-the-packets)
     - [Automatic tests](#automatic-tests)
   - [License](#license)
+  - [Bibliography](#bibliography)
 
 ## Theory
 
@@ -479,8 +480,48 @@ Wireshark hex dump:
 
 ### Automatic tests
 
-For the testing purpose were implemented testing `Python script` that is sending different packets and comparing them with packets captured by `Network Sniffer` to verify correct functionality.
+For the testing purpose were implemented testing `Python script` that is sending different packets and comparing them with packets captured by `Network Sniffer` to verify correct functionality. This is abbreviated output of the tests, for more information about implementation check [`test.py`](test.py) and for whole log of tests see the [`test_out.log`](/test_output/test_out.log) in [`test_output`](/test_output/) folder.
+
+```text
+sudo python test.py 
+[TCP TEST]
+.
+Sent 1 packets.
+[PASSED] TCP packet test passed successfully
+
+[UDP TEST]
+.
+Sent 1 packets.
+[PASSED] UDP packet test passed successfully
+
+[ARP TEST]
+.
+Sent 1 packets.
+[PASSED] ARP packet test passed successfully
+
+[ICMPv6 TEST]
+.
+Sent 1 packets.
+[PASSED] ICMPv6 packet test passed successfully
+
+[ICMPv4 TEST]
+.
+Sent 1 packets.
+[PASSED] ICMPv4 packet test passed successfully
+
+[IGMP TEST]
+.
+Sent 1 packets.
+[PASSED] IGMP packet test passed successfully
+
+[NDP TEST]
+.
+Sent 1 packets.
+[PASSED] NDP packet test passed successfully
+```
 
 ## License
 
 This project is licensed under the `GPL License` - see the [`LICENSE`](LICENSE) file for details.
+
+## Bibliography
