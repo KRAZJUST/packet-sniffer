@@ -546,7 +546,7 @@ sudo valgrind ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 10
 ==47986== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 ```
 
-Test for memory usage after using `CTRL+C` to stop the program.
+Test for memory usage after using `CTRL+C` to terminate the program.
 
 ```text
 sudo valgrind ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 20
@@ -576,5 +576,7 @@ This project is licensed under the `GPL License` - see the [`LICENSE`](LICENSE) 
 ## Bibliography
 
 [TCPDUMP/LIBPCAP public repository](http://www.tcpdump.org/). Retrieved from <http://www.tcpdump.org/>
+
 NESFIT. (2024). IPK-Projects-2024. [Git Repository]. Availible at <https://git.fit.vutbr.cz/NESFIT/IPK-Projects-2024>
+
 [Link to the Gist](https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb)
