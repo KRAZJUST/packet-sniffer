@@ -23,6 +23,7 @@ This documentation describes an implementation of the network analyzer that is c
     - [Setting up the filter](#setting-up-the-filter)
     - [Capturing and printing the packets](#capturing-and-printing-the-packets)
     - [Automatic tests](#automatic-tests)
+    - [Memory usage testing](#memory-usage-testing)
   - [License](#license)
   - [Bibliography](#bibliography)
 
@@ -236,6 +237,7 @@ filter: ((tcp) and (dst port 34 or src port 87)) or ((udp) and (dst port 34 or s
 ### Capturing and printing the packets
 
 The last and most important part to be thoroughly tested is actuall capturing of the packets and printing them with necessary informations. The testing was done by capturing specific packets and then comparing them with the same packet captured by `Wireshark`.
+> Visit [wireshark.org](https://www.wireshark.org/) for more information.
 
 **The following text snippets will contain an examples of captured `packets` while running the `Network Sniffer` and comparison to the `Wireshark` output of the packet.**
 
@@ -520,8 +522,59 @@ Sent 1 packets.
 [PASSED] NDP packet test passed successfully
 ```
 
+### Memory usage testing
+
+The last tested part of the `Network Sniffer` is the test for correct usage of memory. For these tests was used program `Valgrind`. For the purpose of saving space will be displayed only the `Valgrind` output and not the whole program output.
+> Visit [valgrind.org](https://valgrind.org/) for more information.
+
+Test for memory usage after capturing 10 packets:
+
+```text
+sudo valgrind ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 10
+==47986== Memcheck, a memory error detector
+==47986== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==47986== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==47986== Command: ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 10
+==47986== 
+==47986== HEAP SUMMARY:
+==47986==     in use at exit: 0 bytes in 0 blocks
+==47986==   total heap usage: 130 allocs, 130 frees, 134,269 bytes allocated
+==47986== 
+==47986== All heap blocks were freed -- no leaks are possible
+==47986== 
+==47986== For lists of detected and suppressed errors, rerun with: -s
+==47986== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+Test for memory usage after using `CTRL+C` to stop the program.
+
+```text
+sudo valgrind ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 20
+==48969== Memcheck, a memory error detector
+==48969== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==48969== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==48969== Command: ./ipk-sniffer --interface wlp1s0 --tcp --udp -n 20
+^C
+Packets received:             3
+Packets received with filter: 3
+Packets dropped:              0
+==48969== 
+==48969== HEAP SUMMARY:
+==48969==     in use at exit: 0 bytes in 0 blocks
+==48969==   total heap usage: 95 allocs, 95 frees, 126,548 bytes allocated
+==48969== 
+==48969== All heap blocks were freed -- no leaks are possible
+==48969== 
+==48969== For lists of detected and suppressed errors, rerun with: -s
+==48969== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
 ## License
 
 This project is licensed under the `GPL License` - see the [`LICENSE`](LICENSE) file for details.
 
 ## Bibliography
+
+[TCPDUMP/LIBPCAP public repository](http://www.tcpdump.org/). Retrieved from <http://www.tcpdump.org/>
+NESFIT. (2024). IPK-Projects-2024. [Git Repository]. Availible at <https://git.fit.vutbr.cz/NESFIT/IPK-Projects-2024>
+[Link to the Gist](https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb)
