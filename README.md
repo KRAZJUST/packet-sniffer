@@ -581,10 +581,12 @@ NESFIT. (2024). IPK-Projects-2024. [Git Repository]. Availible at <https://git.f
 
 [bom-d-van. mysql-tcpdump.sh. GitHub Gist](https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb). Availible at <https://gist.github.com/bom-d-van/b3ab3e6e924e31bacebae3a508cbd3eb>
 
-RFC 3339 - Date and Time on the Internet: Timestamps
+[RFC3339: Date and Time on the Internet: Timestamps](https://datatracker.ietf.org/doc/html/rfc3339)
 
-RFC 5952 - A Recommendation for IPv6 Address Text Representation
+[RFC5952: A Recommendation for IPv6 Address Text Representation](https://datatracker.ietf.org/doc/html/rfc5952)
 
-RFC 792 - Internet Control Message Protocol a RFC 4443 - ICMPv6
+[RFC792: Internet Control Message Protocol (ICMP)](https://datatracker.ietf.org/doc/html/rfc792)
 
-RFC 826 - ARP
+[RFC4443: Internet Control Message Protocol Version 6 (ICMPv6)](https://datatracker.ietf.org/doc/html/rfc4443)
+
+[RFC826: Address Resolution Protocol (ARP)](https://datatracker.ietf.org/doc/html/rfc826)
