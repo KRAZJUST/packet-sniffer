@@ -482,7 +482,7 @@ Wireshark hex dump:
 
 ### Automatic tests
 
-For the testing purpose were implemented testing `Python script` that is sending different packets and comparing them with packets captured by `Network Sniffer` to verify correct functionality. This is abbreviated output of the tests, for more information about implementation check [`test.py`](test.py) and for whole log of tests see the [`test_out.log`](/test_output/test_out.log) in [`test_output`](/test_output/) folder.
+For the testing purpose, testing `Python script` that is sending different packets and comparing them with packets captured by `Network Sniffer`, was implemented to verify correct functionality. This is abbreviated output of the tests, for more information about implementation check [`test.py`](test.py) and for whole log of tests see the [`test_out.log`](/test_output/test_out.log) in [`test_output`](/test_output/) folder.
 
 ```text
 sudo python test.py 
